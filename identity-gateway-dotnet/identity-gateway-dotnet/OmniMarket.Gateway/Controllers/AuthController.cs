@@ -14,7 +14,11 @@ namespace OmniMarket.Gateway.Controllers
         {
             try
             {
-                var session = await _supabaseClient.Auth.SignUp(request.Email, request.Password);
+                var signUpOptions = new Supabase.Gotrue.SignUpOptions
+                {
+                    Data = new Dictionary<string, object> { { "full_name", request.FullName } }
+                };
+                var session = await _supabaseClient.Auth.SignUp(request.Email, request.Password, signUpOptions);
 
                 if(session == null)
                 {

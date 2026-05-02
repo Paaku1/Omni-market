@@ -1,29 +1,53 @@
-import { Component, OnInit } from '@angular/core';
-import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Auth } from '../../core/services/auth';
+import { AuctionItem } from '../../interfaces/auction-item';
+import { Card } from '../../shared/card/card';
+import { CommonModule } from '@angular/common'; // Import this
+import { RouterModule } from '@angular/router'; // Import this
 
 @Component({
   selector: 'app-bidding-dashboard',
-  template: `
-    <div style="padding: 20px;">
-      <h2>Live Auction: Prototype Laptop</h2>
-      @for (msg of messages; track msg) {
-        <div class="bid-alert">
-          {{ msg }}
-        </div>
-      }
-    </div>
-  `
+  standalone: true, // Assuming your component is standalone
+  imports: [CommonModule, RouterModule, Card], // Add CommonModule and RouterModule here
+  templateUrl: './bidding-dashboard.html',
+  styleUrls: ['./bidding-dashboard.scss']
 })
-export class BiddingDashboard implements OnInit {
-  // Connect to your Spring Boot Engine
-  myWebSocket: WebSocketSubject<any> = webSocket('ws://localhost:8080/ws/bids');
-  messages: string[] = [];
+export class BiddingDashboard implements OnInit, OnDestroy {
+  items: AuctionItem[] = []; // This would typically be fetched from your .NET Gateway
+  private socket!: WebSocket;
 
-  ngOnInit() {
-    this.myWebSocket.subscribe({
-      next:msg => this.messages.push(msg),
-      error:err => console.error(err),
-      complete:() => console.warn('Completed')
-    })
+  constructor(private authService: Auth) {}
+
+  ngOnInit(): void {
+    // Temporary mock data to see if the UI works
+    this.items = [
+      { id: '1', title: 'Vintage Watch', description: 'Rare item', currentBid: 100, bidderName: 'None', endTime: new Date(), imageUrl: 'https://via.placeholder.com/150' }
+    ];
+    this.connectToWebsocket();
+  }
+
+  connectToWebsocket() {
+    const token = this.authService.getToken();
+    // Connect to your Spring Boot Reactive WebSocket
+    this.socket = new WebSocket(`ws://localhost:8080/ws/bids?token=${token}`);
+
+    this.socket.onmessage = (event) => {
+      const updatedBid = JSON.parse(event.data);
+      this.updateLocalBid(updatedBid);
+    };
+
+    this.socket.onerror = (error) => console.error('WebSocket Error:', error);
+  }
+
+  updateLocalBid(bidData: any) {
+    const item = this.items.find((i) => i.id === bidData.auctionId);
+    if (item) {
+      item.currentBid = bidData.amount;
+      item.bidderName = bidData.bidderName;
+    }
+  }
+
+  ngOnDestroy() {
+    this.socket.close();
   }
 }

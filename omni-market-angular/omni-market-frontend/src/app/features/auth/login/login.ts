@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Auth } from '../../../core/services/auth';
 import { Card } from '../../../shared/card/card';
 import { NgOptimizedImage } from '@angular/common';
@@ -8,7 +8,7 @@ import { NgOptimizedImage } from '@angular/common';
 @Component({
   selector: 'app-login',
   templateUrl: './login.html',
-  imports: [ReactiveFormsModule, Card, NgOptimizedImage],
+  imports: [ReactiveFormsModule, Card, RouterLink],
   styleUrls: ['./login.scss'],
 })
 export class Login implements OnInit {
@@ -22,7 +22,27 @@ export class Login implements OnInit {
     private router: Router,
   ) {}
 
-  ngOnInit(): void {
+  // app/features/auth/login/login.ts
+  ngOnInit() {
+    this.initForm(); // Your existing form init logic
+
+    // Listen for the session to navigate, but let the service handle storage
+    this.authService.supabase.auth.onAuthStateChange((event, session) => {
+      if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
+        this.router.navigate(['/dashboard']);
+      }
+    });
+  }
+
+  async onGoogleLogin() {
+    try {
+      await this.authService.loginWithGoogle();
+    } catch (err) {
+      alert('Login failed. Check your console.');
+    }
+  }
+
+  initForm() {
     // Initialize the form with validation rules
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -50,13 +70,6 @@ export class Login implements OnInit {
         this.errorMessage = 'Invalid email or password. Please try again.';
         console.error('Login failed', err);
       },
-    });
-
-    this.authService.supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && session) {
-        console.log('User signed in via OAuth:', session.user);
-        this.router.navigate(['/dashboard']);
-      }
     });
   }
 }

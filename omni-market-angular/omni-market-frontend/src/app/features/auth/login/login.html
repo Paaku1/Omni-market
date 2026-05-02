@@ -14,26 +14,26 @@
             <input type="password" formControlName="password" class="form-control">
           </div>
 
-          <button class="btn btn-primary" type="submit" [disabled]="loginForm.invalid">Enter Market</button>
+          <button class="btn btn-primary w-100" type="submit" [disabled]="loginForm.invalid">Enter Market</button>
+          <p class="text-center py-3">New User? <a routerLink="/signup">Sign Up</a></p>
         </div>
         <div class="col-6">
           <div class="d-flex flex-column align-items-center justify-content-center h-100">
             <p>Or sign in with</p>
             <div class="d-flex flex-row justify-content-center align-items-center gap-4">
-              <button class="btn btn-outline-light d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+              <button class="btn btn-outline-light d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;" (click)="onGoogleLogin()">
                 <img src="Google-Icon.png" alt="Google" style="width: 30px; height: 30px;">
               </button>
-              <button class="btn btn-outline-light d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+              <!--<button class="btn btn-outline-light d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook" style="width: 30px; height: 30px;">
               </button>
               <button class="btn btn-outline-light d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
                 <img src="https://github.githubassets.com/images/modules/site/icons/footer/github-mark.svg" alt="GitHub" style="width: 30px; height: 30px;">
-              </button>
+              </button>-->
             </div>
           </div>
         </div>
       </div>
     </div>
  </form>
-    <p class="text-center py-3">New User? Sign Up</p>
-  </app-card>
+</app-card>

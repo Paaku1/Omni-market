@@ -1,0 +1,20 @@
+.text-warning { color: #ffc107; }
+
+.bg-dark-lighter {
+  background-color: #2a2e33;
+}
+
+.price-flash {
+  animation: flash-green 1s ease-out;
+}
+
+@keyframes flash-green {
+  0% { background-color: rgba(40, 167, 69, 0.1); border-color: #28a745; }
+  100% { background-color: transparent; border-color: #6c757d; }
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
