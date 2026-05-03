@@ -17,5 +17,13 @@ namespace OmniMarket.Gateway.Models
 
         [Column("is_closed")]
         public bool IsClosed { get; set; }
+
+        // Add this Navigation Property
+        [Reference(typeof(Product))]
+        public Product? Product { get; set; }
+
+        // Also add this for the Bids relationship in image_96c556.png
+        [Reference(typeof(Bid))]
+        public List<Bid> Bids { get; set; } = new();
     }
 }

@@ -5,18 +5,23 @@
   </div>
 
   <div class="row g-4">
-    @for (item of items; track item.id) {
+    <!-- Updated track to use auctionId from your .NET DTO -->
+    @for (item of items; track item.auctionId) {
       <div class="col-md-4">
         <app-card>
           <div class="auction-card">
-            <img [src]="item.imageUrl" class="item-image mb-3" alt="item">
-            <h4>{{ item.title }}</h4>
-            <p class="text-muted small">{{ item.description }}</p>
+            <!-- If your .NET DTO doesn't have imageUrl yet, you can use a placeholder -->
+            <img [src]="'https://via.placeholder.com/150'" class="item-image mb-3" alt="item">
+
+            <!-- Updated to use productName from BiddingService -->
+            <h4>{{ item.productName }}</h4>
+            <p class="text-muted small">{{ item.description || 'No description available' }}</p>
 
             <div class="bid-section d-flex justify-content-between align-items-center p-3 rounded bg-dark-lighter">
               <div>
-                <span class="d-block small text-uppercase">Current Bid</span>
-                <span class="h4 text-success mb-0">${{ item.currentBid }}</span>
+                <span class="d-block small text-uppercase">Current Price</span>
+                <!-- Use startingPrice as a fallback if no currentBid exists yet -->
+                <span class="h4 text-success mb-0">₹{{ item.currentBid || item.startingPrice }}</span>
               </div>
               <div class="text-end">
                 <span class="d-block small text-muted">High Bidder</span>
@@ -24,12 +29,13 @@
               </div>
             </div>
 
-            <button class="btn btn-gold w-100 mt-3" [routerLink]="['/bid', item.id]">
+            <!-- Use item.auctionId (the UUID) for routing to the BidDetails page -->
+            <button class="btn btn-gold w-100 mt-3" [routerLink]="['/bid', item.auctionId]">
               View Details & Bid
             </button>
           </div>
         </app-card>
-    </div>
+      </div>
     }
   </div>
 </div>

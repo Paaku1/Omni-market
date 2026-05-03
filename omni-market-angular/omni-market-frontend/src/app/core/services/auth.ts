@@ -10,7 +10,7 @@ import { environment } from '../../../environments/environment';
   providedIn: 'root',
 })
 export class Auth {
-  private readonly API_URL = environment.gatewayUrl;
+  private readonly API_URL = `${environment.gatewayUrl}/auth`;
   private userSubject = new BehaviorSubject<any>(null);
   public user$: Observable<any> = this.userSubject.asObservable();
   supabase: SupabaseClient;
@@ -18,7 +18,7 @@ export class Auth {
   constructor(private http: HttpClient) {
     this.supabase = createClient(
       'https://jktxgbkbyvyqhkyvfdal.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImprdHhnYmtieXZ5cWhreXZmZGFsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2Mzc0OTQsImV4cCI6MjA5MTIxMzQ5NH0.ItUx8dOH1UWPh-A2ZbynFJhp12Lu4XIwUB3XoI6GfTU'
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImprdHhnYmtieXZ5cWhreXZmZGFsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2Mzc0OTQsImV4cCI6MjA5MTIxMzQ5NH0.ItUx8dOH1UWPh-A2ZbynFJhp12Lu4XIwUB3XoI6GfTU',
     );
     this.supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
@@ -41,18 +41,18 @@ export class Auth {
     const { error } = await this.supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: 'http://localhost:4200/auth/callback' // ✅ changed
-      }
+        redirectTo: 'http://localhost:4200/auth/callback', // ✅ changed
+      },
     });
     if (error) console.error('OAuth Error:', error.message);
   }
 
-  login(credentials: UserCredentials){
-    return this.http.post(`${this.API_URL}/login`,credentials).pipe(
+  login(credentials: UserCredentials) {
+    return this.http.post(`${this.API_URL}/login`, credentials).pipe(
       tap((response: any) => {
-        localStorage.setItem('token',response.token);
+        localStorage.setItem('token', response.token);
         this.userSubject.next(response.user);
-      })
+      }),
     );
   }
 
@@ -64,11 +64,11 @@ export class Auth {
           return throwError(() => new Error('Cannot authenticate now, please try again later.'));
         }
         return throwError(() => error);
-      })
+      }),
     );
   }
 
-  getToken(){
+  getToken() {
     return localStorage.getItem('token');
   }
 
@@ -82,5 +82,4 @@ export class Auth {
     this.userSubject.next(null);
     localStorage.removeItem('token');
   }
-
 }

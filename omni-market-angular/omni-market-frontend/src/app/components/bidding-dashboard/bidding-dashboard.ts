@@ -1,34 +1,45 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Auth } from '../../core/services/auth';
 import { AuctionItem } from '../../interfaces/auction-item';
 import { Card } from '../../shared/card/card';
-import { CommonModule } from '@angular/common'; // Import this
-import { RouterModule } from '@angular/router'; // Import this
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { BiddingService } from '../../core/services/bidding-service';
 
 @Component({
   selector: 'app-bidding-dashboard',
-  standalone: true, // Assuming your component is standalone
-  imports: [CommonModule, RouterModule, Card], // Add CommonModule and RouterModule here
+  standalone: true,
+  imports: [CommonModule, RouterModule, Card],
   templateUrl: './bidding-dashboard.html',
   styleUrls: ['./bidding-dashboard.scss']
 })
 export class BiddingDashboard implements OnInit, OnDestroy {
-  items: AuctionItem[] = []; // This would typically be fetched from your .NET Gateway
+  items: AuctionItem[] = [];
   private socket!: WebSocket;
 
-  constructor(private authService: Auth) {}
+  constructor(
+    private readonly authService: Auth,
+    private readonly biddingService: BiddingService,
+    private cdr: ChangeDetectorRef
+    ) {}
 
   ngOnInit(): void {
-    // Temporary mock data to see if the UI works
-    this.items = [
-      { id: '1', title: 'Vintage Watch', description: 'Rare item', currentBid: 100, bidderName: 'None', endTime: new Date(), imageUrl: 'https://via.placeholder.com/150' }
-    ];
+    this.loadActiveAuctions();
     this.connectToWebsocket();
+  }
+
+  private loadActiveAuctions() {
+    this.biddingService.getActiveAuctions().subscribe({
+      next: (data : AuctionItem[]) => {
+        this.items = [...data];
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error("Gateway Error",err)
+    })
   }
 
   connectToWebsocket() {
     const token = this.authService.getToken();
-    // Connect to your Spring Boot Reactive WebSocket
     this.socket = new WebSocket(`ws://localhost:8080/ws/bids?token=${token}`);
 
     this.socket.onmessage = (event) => {
@@ -40,10 +51,12 @@ export class BiddingDashboard implements OnInit, OnDestroy {
   }
 
   updateLocalBid(bidData: any) {
-    const item = this.items.find((i) => i.id === bidData.auctionId);
+    const item = this.items.find((i) => i.auctionId === bidData.auctionId);
+
     if (item) {
       item.currentBid = bidData.amount;
       item.bidderName = bidData.bidderName;
+      this.cdr.detectChanges();
     }
   }
 

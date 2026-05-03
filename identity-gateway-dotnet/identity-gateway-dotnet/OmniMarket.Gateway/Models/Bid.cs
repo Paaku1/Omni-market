@@ -1,6 +1,5 @@
 ﻿using Supabase.Postgrest.Attributes;
 using Supabase.Postgrest.Models;
-
 namespace OmniMarket.Gateway.Models
 {
     [Table("bids")]

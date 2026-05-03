@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace OmniMarket.Gateway.Controllers
 {
+    [Route("/api/auth")]
     public class AuthController(Supabase.Client _supabaseClient) : Controller
     {
         [HttpPost("signup")]
